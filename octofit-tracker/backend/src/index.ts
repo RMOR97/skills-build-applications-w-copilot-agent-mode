@@ -6,25 +6,30 @@ import usersRouter from './routes/users';
 import activitiesRouter from './routes/activities';
 import teamsRouter from './routes/teams';
 import leaderboardRouter from './routes/leaderboard';
+import config from './config/environment';
 
 dotenv.config();
 
 const app: Express = express();
-const PORT = process.env.PORT || 8000;
-const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://localhost:27017/octofit-tracker';
+const { port, mongodbUri, apiBaseUrl, environment, corsOrigins } = config;
 
 // Middleware
-app.use(cors());
+app.use(cors({
+  origin: corsOrigins,
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
+}));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 // Database connection
-mongoose.connect(MONGODB_URI)
+mongoose.connect(mongodbUri)
   .then(() => {
-    console.log('Connected to MongoDB');
+    console.log('✅ Connected to MongoDB');
   })
   .catch((error) => {
-    console.error('MongoDB connection error:', error);
+    console.error('❌ MongoDB connection error:', error);
     process.exit(1);
   });
 
@@ -52,6 +57,18 @@ app.use((err: any, req: Request, res: Response, next: NextFunction) => {
 });
 
 // Start server
-app.listen(PORT, () => {
-  console.log(`Server is running on port ${PORT}`);
+app.listen(port, () => {
+  console.log('\n═══════════════════════════════════════════════════════════');
+  console.log('🐙 OctoFit Tracker API Server Started');
+  console.log('═══════════════════════════════════════════════════════════');
+  console.log(`📍 Environment: ${environment.toUpperCase()}`);
+  console.log(`🌐 API Base URL: ${apiBaseUrl}`);
+  console.log(`🔗 Server Port: ${port}`);
+  console.log(`📊 Database: ${mongodbUri.replace(/mongodb:\/\/.*@/, 'mongodb://***@')}`);
+  console.log('');
+  console.log('Allowed CORS Origins:');
+  corsOrigins.forEach((origin) => {
+    console.log(`  ✓ ${origin}`);
+  });
+  console.log('═══════════════════════════════════════════════════════════\n');
 });

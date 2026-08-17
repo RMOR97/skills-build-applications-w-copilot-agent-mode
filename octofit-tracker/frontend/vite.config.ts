@@ -11,5 +11,9 @@ export default defineConfig({
   build: {
     outDir: 'dist',
     sourcemap: true
+  },
+  define: {
+    'import.meta.env.VITE_CODESPACE_NAME': JSON.stringify(process.env.CODESPACE_NAME),
+    'import.meta.env.VITE_API_PORT': JSON.stringify(process.env.API_PORT || '8000')
   }
 })
